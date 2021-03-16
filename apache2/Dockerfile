@@ -19,11 +19,18 @@ WORKDIR /var/www/
 
 COPY vhost.conf /etc/apache2/sites-enabled/vhost.conf
 
-# install openssl
-RUN apt-get install -y openssl
-
-# create a folder for the keys
+ARG APACHE_INSTALL_HTTP2=false
 RUN mkdir /etc/apache2/ssl 2> /dev/null
+RUN if [ ${APACHE_INSTALL_HTTP2} = true ]; then \
+    openssl genrsa -out "/etc/apache2/ssl/ssl_site.key" 2048 \
+    && openssl rand -out /root/.rnd -hex 256 \
+    && openssl req -new -key "/etc/apache2/ssl/ssl_site.key" -out "/etc/apache2/ssl/ssl_site.csr" -subj "/CN=site.com/O=LGS/C=IT" \
+    && openssl x509 -req -days 365 -in "/etc/apache2/ssl/ssl_site.csr" -signkey "/etc/apache2/ssl/ssl_site.key" -out "/etc/apache2/ssl/ssl_site.crt" \
+    && a2enmod rewrite \
+    && a2enmod headers \
+    && a2enmod proxy proxy_html proxy_http xml2enc ssl http2 \
+    && service apache2 restart \
+;fi
 
 # generate the keys for your local domain
 COPY openssl.conf /etc/apache2/ssl/openssl.conf
