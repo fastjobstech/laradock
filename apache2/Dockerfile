@@ -36,7 +36,7 @@ RUN if [ ${APACHE_INSTALL_HTTP2} = true ]; then \
 COPY openssl.conf /etc/apache2/ssl/openssl.conf
 RUN openssl req -days 365 -x509 -out /etc/apache2/ssl/localhost.crt -keyout /etc/apache2/ssl/localhost.key \
   -newkey rsa:2048 -nodes -sha256 \
-  -subj '/CN=*.fastjobs.fun' -extensions EXT -config /etc/apache2/ssl/openssl.conf
+  -subj '/CN=*.fastjobs.sg' -extensions EXT -config /etc/apache2/ssl/openssl.conf
 
 ENTRYPOINT ["/opt/docker/bin/entrypoint.sh"]
 
